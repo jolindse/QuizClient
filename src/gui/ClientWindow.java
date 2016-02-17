@@ -1,6 +1,8 @@
 package gui;
 
 
+import java.awt.event.KeyEvent;
+
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -31,6 +33,11 @@ public class ClientWindow {
 			output.setEditable(false);
 			
 			TextField input = new TextField();
+			input.setOnKeyTyped((e) ->{
+				if(input.getText().length() > 0){
+					controller.send(input.getText());
+				}
+			});
 			
 			rootPane.setTop(topPanel);
 			rootPane.setCenter(output);

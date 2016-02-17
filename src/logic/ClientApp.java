@@ -15,6 +15,7 @@ public class ClientApp extends Application {
 		ClientController controller = new ClientController();
 		ClientWindow view = new ClientWindow(primaryStage, controller);
 		controller.registerView(view);
+		controller.connect();
 	}
 
 }
