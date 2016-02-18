@@ -1,33 +1,36 @@
 package network;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
+import java.io.PrintWriter;
 
 import logic.ClientController;
 
 public class ServerWrite implements Runnable {
 
 	private ClientController controller;
-	private BufferedWriter out;
+	private PrintWriter out;
 	private String text;
 
-	public ServerWrite(ClientController controller, BufferedWriter out, String rawText, String command) {		
+	public ServerWrite(ClientController controller, PrintWriter out, String rawText, String command,
+			String commandData) {
 		this.out = out;
-		text = parseText(rawText, command);
+		text = parseText(rawText, command, commandData);
 		this.controller = controller;
 	}
-	
-	private String parseText(String in,String command){
+
+	private String parseText(String in, String command, String commandData) {
 		String parsed;
-		switch(command){
+		switch (command) {
+		case "CONNECT":
+			parsed = "CONNECT,@" + commandData + ",@";
+			break;
 		case "DISCONNECT":
-			parsed = "DISCONNECT,@,@\n";
+			parsed = "DISCONNECT,@,@";
 			break;
 		case "CHAT":
-			parsed = "CHAT,@,@"+in+"\n";
+			parsed = "CHAT,@,@" + in;
 			break;
 		default:
-			parsed = "CHAT,@,@"+in+"\n";
+			parsed = "CHAT,@,@" + in;
 			break;
 		}
 		return parsed;
@@ -35,12 +38,7 @@ public class ServerWrite implements Runnable {
 
 	@Override
 	public void run() {
-			try {
-				out.write(text);
-				out.flush();
-			} catch (IOException e) {
-				controller.outputText("Error sending to server!");
-			}
-		}
+		out.println(text);
+	}
 
 }

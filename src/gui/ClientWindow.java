@@ -37,11 +37,8 @@ public class ClientWindow {
 			
 			TextField input = new TextField();
 			input.setOnAction((e) ->{
-			
-					controller.send(input.getText(),"CHAT");
-					addOutput(input.getText());
+					controller.send(input.getText(),"CHAT","");
 					input.setText("");
-			
 			});
 			
 			rootPane.setTop(topPanel);
@@ -51,7 +48,7 @@ public class ClientWindow {
 			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 				@Override
 				public void handle(WindowEvent event) {
-						System.exit(0);
+						controller.exitAll();
 					}
 			});
 			
@@ -63,7 +60,6 @@ public class ClientWindow {
 		}
 		
 		public void addOutput(String text){
-			String out = output.getText()+"\n"+text;
-			output.setText(out);
+			output.appendText(text+"\n");
 		}
 }
