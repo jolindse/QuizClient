@@ -1,10 +1,10 @@
 package logic;
 
+import java.io.BufferedWriter;
 import java.net.Socket;
 
 import gui.ClientWindow;
 import network.ServerConnection;
-import network.ServerRead;
 import network.ServerWrite;
 
 public class ClientController {
@@ -12,6 +12,8 @@ public class ClientController {
 	private ClientWindow view;
 	private Socket server;
 	private ServerWrite sw;
+	
+	private BufferedWriter out;
 	
 	
 	private boolean serverConnected;
@@ -32,31 +34,34 @@ public class ClientController {
 	
 	// METHODS TO HANDLE CONNECTION TO SERVER
 	
-	public void connect(){
-		ServerConnection sc = new ServerConnection(this);
+	public void connect(String name){
+		System.out.println("Namn: "+name); // TEST
+		ServerConnection sc = new ServerConnection(this, name);
 		Thread connection = new Thread(sc);
 		connection.start();
+	}
+	
+	public void setWriter(BufferedWriter out){
+		this.out = out;
 	}
 	
 	public void setServerSocket(Socket server){
 		
 		this.server = server;
 		serverConnected = true;
-		
-		// Initializing read/write threads
-		
-		sw = new ServerWrite(server, this);
-		Thread sendTh = new Thread(sw);
-		Thread readTh = new Thread(new ServerRead(server, this));
-		
-		sendTh.start();
-		readTh.start();
-		
+	}
+
+	public void send(String text, String command){
+		if (serverConnected){
+			ServerWrite write = new ServerWrite(this, out, text, command);
+			Thread writeTh = new Thread(write);
+			writeTh.start();
+		} else {
+			outputText("No connection to server!");
+		}
 	}
 	
-	public void send(String text){
-		if (serverConnected){
-			sw.send(text);
-		}
+	public void exitAll(){
+		
 	}
 }

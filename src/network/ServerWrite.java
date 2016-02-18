@@ -2,41 +2,45 @@ package network;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
 
 import logic.ClientController;
 
 public class ServerWrite implements Runnable {
 
-	private Socket server;
 	private ClientController controller;
 	private BufferedWriter out;
+	private String text;
 
-	public ServerWrite(Socket server, ClientController controller) {
+	public ServerWrite(ClientController controller, BufferedWriter out, String rawText, String command) {		
+		this.out = out;
+		text = parseText(rawText, command);
 		this.controller = controller;
-		this.server = server;
-		out = null;
 	}
-
-	public void send(String text) {
-		try {
-			out.write(text);
-			out.flush();
-		} catch (IOException e) {
-			controller.outputText("Error sending to server!");
+	
+	private String parseText(String in,String command){
+		String parsed;
+		switch(command){
+		case "DISCONNECT":
+			parsed = "DISCONNECT,@,@\n";
+			break;
+		case "CHAT":
+			parsed = "CHAT,@,@"+in+"\n";
+			break;
+		default:
+			parsed = "CHAT,@,@"+in+"\n";
+			break;
 		}
+		return parsed;
 	}
 
 	@Override
 	public void run() {
-		try {
-			out = new BufferedWriter(new PrintWriter(server.getOutputStream()));
-			while (true) {
+			try {
+				out.write(text);
+				out.flush();
+			} catch (IOException e) {
+				controller.outputText("Error sending to server!");
 			}
-		} catch (IOException e) {
-			controller.outputText("Error sending to server!");
 		}
-	}
 
 }

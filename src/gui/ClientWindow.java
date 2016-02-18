@@ -1,8 +1,7 @@
 package gui;
 
 
-import java.awt.event.KeyEvent;
-
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -10,6 +9,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import logic.ClientController;
 
 public class ClientWindow {
@@ -23,25 +23,37 @@ public class ClientWindow {
 			
 			
 			HBox topPanel = new HBox();
+			TextField nameField = new TextField();
 			Button btnConnect = new Button("Connect to server");
 			btnConnect.setOnAction((e) -> {
-				controller.connect();
+				if (nameField.getText().length() > 0){
+					controller.connect(nameField.getText());
+				}
 			});
-			topPanel.getChildren().add(btnConnect);
+			topPanel.getChildren().addAll(nameField,btnConnect);
 			
 			output = new TextArea();
 			output.setEditable(false);
 			
 			TextField input = new TextField();
-			input.setOnKeyTyped((e) ->{
-				if(input.getText().length() > 0){
-					controller.send(input.getText());
-				}
+			input.setOnAction((e) ->{
+			
+					controller.send(input.getText(),"CHAT");
+					addOutput(input.getText());
+					input.setText("");
+			
 			});
 			
 			rootPane.setTop(topPanel);
 			rootPane.setCenter(output);
 			rootPane.setBottom(input);
+			
+			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+				@Override
+				public void handle(WindowEvent event) {
+						System.exit(0);
+					}
+			});
 			
 			Scene scene = new Scene(rootPane,600,800);
 			stage.setTitle("QuizClient v0.1");
