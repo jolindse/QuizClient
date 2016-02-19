@@ -8,14 +8,21 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.FontSmoothingType;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import logic.ClientController;
 
 public class ClientWindow {
 
+		private String htmlHead ="<html><head><title></title></head><body>";
+		private String htmlFoot ="</body></html>";
+		private 
 		private ClientController controller;
-		private TextArea output;
+		private WebView outputView;
+		private WebEngine output;
 	
 		public ClientWindow(Stage stage, ClientController controller){
 			this.controller = controller;
@@ -32,8 +39,10 @@ public class ClientWindow {
 			});
 			topPanel.getChildren().addAll(nameField,btnConnect);
 			
-			output = new TextArea();
-			output.setEditable(false);
+			outputView = new WebView();
+			outputView.setFontSmoothingType(FontSmoothingType.LCD);
+			output = outputView.getEngine();
+			
 			
 			TextField input = new TextField();
 			input.setOnAction((e) ->{
@@ -42,7 +51,7 @@ public class ClientWindow {
 			});
 			
 			rootPane.setTop(topPanel);
-			rootPane.setCenter(output);
+			rootPane.setCenter(outputView);
 			rootPane.setBottom(input);
 			
 			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -60,6 +69,6 @@ public class ClientWindow {
 		}
 		
 		public void addOutput(String text){
-			output.appendText(text+"\n");
+			output.(text+"\n");
 		}
 }
