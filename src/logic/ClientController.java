@@ -1,18 +1,17 @@
 package logic;
 
-import java.io.PrintWriter;
-import java.net.Socket;
-
+import bean.Message;
 import gui.ClientWindow;
 import network.ServerConnection;
-import network.ServerWrite;
 
 public class ClientController {
 
 	private ClientWindow view;
-	private Socket server;
-	private ServerWrite sw;
-	private PrintWriter out;
+	private ServerConnection server;
+
+	// SERVER DEFAULT VALUES
+	private String serverAdress = "127.0.0.1";
+	private int serverPort = 55500;
 
 	private boolean serverConnected;
 
@@ -26,52 +25,41 @@ public class ClientController {
 
 	// METHODS TO MANIPULATE VIEW
 
-	public void outputText(String text) {
-		view.addOutput(text);
+	public void outputText(String inLine) {
+		Message currMessage = new Message(inLine);
+		view.addOutput(currMessage);
+	}
+
+	public void outputText(String cmd, String cmdData, String optionalData) {
+		Message currMessage = new Message(cmd, cmdData, optionalData);
+		view.addOutput(currMessage);
 	}
 
 	// METHODS TO HANDLE CONNECTION TO SERVER
 
-	public void connect(String name) {
-		if (!serverConnected) {
-			ServerConnection sc = new ServerConnection(this, name);
-			Thread connection = new Thread(sc);
-			connection.start();
-		}
-	}
-
-	public void setWriter(PrintWriter out) {
-		this.out = out;
-	}
-
-	public void setServerSocket(Socket server) {
-
-		this.server = server;
+	public void setServerConnected(){
 		serverConnected = true;
 	}
-
-	public void send(String text, String command, String commandData) {
-		if (serverConnected) {
-			ServerWrite write = new ServerWrite(this, out, text, command, commandData);
-			Thread writeTh = new Thread(write);
-			writeTh.start();
-		} else {
-			outputText("No connection to server!");
+	
+	public void connect(String name) {
+		if (!serverConnected) {
+			server = new ServerConnection(this, name, serverAdress, serverPort);
+			Thread serverConnection = new Thread(server);
+			serverConnection.start();
 		}
 	}
 
-	public void send(String text) {
+	public synchronized void send(String cmd, String cmdData, String optionalData) {
 		if (serverConnected) {
-			ServerWrite write = new ServerWrite(this, out, text, "CHAT", "");
-			Thread writeTh = new Thread(write);
-			writeTh.start();
-		} else {
-			outputText("No connection to server!");
+			Message currMessage = new Message(cmd, cmdData, optionalData);
+			server.send(currMessage);
 		}
 	}
 
 	public void exitAll() {
-		send("", "DISCONNECT", "");
+		if (serverConnected){
+		send("DISCONNECT",server.getName(),"");
+		}
 		System.exit(0);
 	}
 }

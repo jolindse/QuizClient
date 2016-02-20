@@ -6,47 +6,50 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
+import bean.Message;
 import logic.ClientController;
 
 public class ServerConnection implements Runnable {
 
-	private String serverAdress = "127.0.0.1";
-	private int serverPort = 55500;
+	private Socket server;
 	private ClientController controller;
 	private PrintWriter out;
 	private String name;
 
-	public ServerConnection(ClientController controller, String rawName) {
+	public ServerConnection(ClientController controller, String name, String serverAdress, int serverPort) {
 		this.controller = controller;
-		name = rawName;
+		this.name = name;
+		try {
+			server = new Socket(serverAdress, serverPort);
+			out = new PrintWriter(server.getOutputStream(), true);
+		} catch (IOException e) {
+			// MAKE INFO MESSAGE AND DISPLAY
+			e.printStackTrace();
+		}
+		controller.setServerConnected();
+	}
+	
+	public String getName(){
+		return name;
+	}
+
+	public void send(Message currMessage) {
+		out.println(currMessage.getSendString());
 	}
 
 	@Override
 	public void run() {
-		Socket connection = null;
+		controller.outputText("INFORMATION","","Connected to :" + server.getInetAddress() + " on port: " + server.getPort());
+		controller.send("CONNECT", name,"");
+		Scanner sc;
 		try {
-			connection = new Socket(serverAdress, serverPort);
-			controller.setServerSocket(connection);
-			controller.outputText("Connected to :" + connection.getInetAddress() + " on port: " + connection.getPort());
-			out = new PrintWriter(connection.getOutputStream(),true);
-			controller.setWriter(out);
-			controller.send("", "CONNECT", name);
-			Scanner sc = new Scanner(connection.getInputStream());
-			while(sc.hasNextLine()){
+			sc = new Scanner(server.getInputStream());
+			while (sc.hasNextLine()) {
 				controller.outputText(sc.nextLine());
 			}
-		} catch (UnknownHostException e) {
-			controller.outputText("Host unknown. Please check hostname and reconnect.");
 		} catch (IOException e) {
-			controller.outputText("Network connection problem. Please try to reconnect");
-		} finally {
-			try {
-				connection.close();
-			} catch (IOException e) {
-				controller.outputText("Error closing socket.");
-			}
+			// MAKE PROPER ERROR LINE
+			e.printStackTrace();
 		}
-
 	}
-
 }

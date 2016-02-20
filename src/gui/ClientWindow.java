@@ -1,15 +1,15 @@
 package gui;
 
 
+
+import bean.Message;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.FontSmoothingType;
-import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -17,18 +17,12 @@ import logic.ClientController;
 
 public class ClientWindow {
 
-		private String htmlHead ="<html><head><title></title></head><body>";
-		private String htmlFoot ="</body></html>";
-		private 
-		private ClientController controller;
-		private WebView outputView;
-		private WebEngine output;
-	
+		private Render render;
+		private final WebView outputView;
+		
 		public ClientWindow(Stage stage, ClientController controller){
-			this.controller = controller;
+			render = new Render();
 			BorderPane rootPane = new BorderPane();
-			
-			
 			HBox topPanel = new HBox();
 			TextField nameField = new TextField();
 			Button btnConnect = new Button("Connect to server");
@@ -40,13 +34,12 @@ public class ClientWindow {
 			topPanel.getChildren().addAll(nameField,btnConnect);
 			
 			outputView = new WebView();
-			outputView.setFontSmoothingType(FontSmoothingType.LCD);
-			output = outputView.getEngine();
-			
+			// outputView.setFontSmoothingType(FontSmoothingType.LCD);
+			outputView.getEngine().loadContent(render.getEmpty());
 			
 			TextField input = new TextField();
 			input.setOnAction((e) ->{
-					controller.send(input.getText(),"CHAT","");
+					controller.send("CHAT","",input.getText());
 					input.setText("");
 			});
 			
@@ -68,7 +61,13 @@ public class ClientWindow {
 			
 		}
 		
-		public void addOutput(String text){
-			output.(text+"\n");
+		public void addOutput(Message currMessage){
+			System.out.println("VIEW; Recieved output: "+currMessage.getSendString()); // TEST
+			// RENDER INPUT
+			String htmlContent = render.getContent(currMessage);
+			// DO UPDATE IN FX THREAD
+			Platform.runLater(() ->{
+				outputView.getEngine().loadContent(htmlContent);
+			});
 		}
 }
