@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.FontSmoothingType;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -34,8 +35,15 @@ public class ClientWindow {
 			topPanel.getChildren().addAll(nameField,btnConnect);
 			
 			outputView = new WebView();
-			// outputView.setFontSmoothingType(FontSmoothingType.LCD);
+			
+			/*
+			 * Trying to implement auto scroll;
+			 */
+			
+			 
+			outputView.setFontSmoothingType(FontSmoothingType.GRAY);
 			outputView.getEngine().loadContent(render.getEmpty());
+			
 			
 			TextField input = new TextField();
 			input.setOnAction((e) ->{
