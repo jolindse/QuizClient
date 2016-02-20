@@ -67,6 +67,8 @@ public class Render {
 		case "INFORMATION":
 			currLine = "<p class=\"chat\">" + inMessage.getOptionalData()+"</p>";
 			break;
+		default:
+			currLine = "<p class=\"chat\">" + inMessage.getCmdData() + " " + inMessage.getOptionalData()+"</p>";
 		}
 		return currLine;
 	}
