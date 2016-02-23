@@ -78,8 +78,8 @@ public class ClientWindow {
 					}
 			});
 			
-			Scene scene = new Scene(rootPane,600,800);
-			stage.setTitle("QuizClient v0.1");
+			Scene scene = new Scene(rootPane,600,500);
+			stage.setTitle("QuizClient v0.7");
 			stage.setScene(scene);
 			stage.show();
 			
@@ -88,7 +88,7 @@ public class ClientWindow {
 		public void addOutput(Message currMessage){
 			System.out.println("VIEW; Recieved output: "+currMessage.getSendString()); // TEST
 			Platform.runLater(() ->{
-				outputView.getEngine().executeScript("appendChat('"+currMessage.getCmd()+"','"+currMessage.getCmdData()+"','"+currMessage.getOptionalData()+"')");
+				outputView.getEngine().executeScript("output('"+currMessage.getCmd()+"','"+currMessage.getCmdData()+"','"+currMessage.getOptionalData()+"')");
 			});
 		}
 }

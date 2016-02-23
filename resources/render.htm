@@ -43,32 +43,21 @@ p.default {
 }
 
 #info {
-	font-family: Georgia, Serif;
-	font-size: 1.05em;
+	font-family: Verdana, Sans-serif;
+	font-size: 0.9em;
 }
 
 #question {
 	position: absolute;
-	background: white;
+	background: rgb(230,230,240);
 	top: 0px;
 	left: 0px;
+	right: 0px;
 	border: 1px;
 	padding: 10 px;
 	height: 120 px;
 	opacity: 0;
-	z-index: +1;
-}
-
-#information {
-	position: absolute;
-	background: rgb(50,50,50);
-	top: 120px;
-	left: 0 px;
-	border: 1px;
-	padding: 10px;
-	height: 80px;
-	opacity: 0;
-	z-index: +1;
+	z-index: 1;
 }
 
 @keyframes fadeIn {
@@ -86,6 +75,15 @@ p.default {
 </head>
 <body>
 	<script>
+	
+		function output(cmd, cmdData, optionalData){
+			if (cmd === "QUIZ"){
+				displayQuiz(cmdData, optionalData);
+			} else {
+				appendChat(cmd, cmdData, optionalData);
+			}
+		}
+	
 		function appendChat(cmd, cmdData, optionalData) {
 			var pclass;
 			var outString;
@@ -113,10 +111,6 @@ p.default {
 			case "INFORMATION":
 				pclass = 'default';
 				outString = optionalData;
-				break;
-			case "QUIZ":
-				// If quiz output - send to quizdisplay function.
-				displayQuiz(cmdData,optionalData);
 				break;
 			default:
 				pclass = 'default';
@@ -146,7 +140,6 @@ p.default {
 			
 			// Fields
 			var questionDiv = document.getElementById("question");
-			var informationDiv = document.getElementById("information");
 			
 			switch(cmdData){
 			case "START":
@@ -156,7 +149,7 @@ p.default {
 			case "QUESTION":
 				questionP.innerHTML = optionalData;
 				// Manipulate info div opacity to 0
-				informationDiv.style.opacity = 0;
+				infoP.style.opacity = 0;
 				break;
 			case "NOANSWER":
 				questionP.innerHTML = optionalData;
@@ -166,19 +159,22 @@ p.default {
 				break;
 			case "INFO":
 				// info div opacity 1
-				informationDiv.style.opacity = 1;
 				infoP.innerHTML = optionalData;
+				infoP.style.opacity = 1;
 				break;
 			case "ENDED":
+				questionDiv.style.opacity = 0;
 				questionP.innerHTML = optionalData;
 				// info div opacity 0
-				informationDiv.style.opacity = 0;
+				infoP.style.opacity = 0;
 				break;
 			}
 		}
 	</script>
-	<div id="question"><p id="quest"></p></div>
-	<div id="information"><p id="info"></p></div>
+	<div id="question">
+	<p id="quest"></p>
+	<p id="info"></p>
+	</div>
 	<div id="chat"></div>
 </body>
 </html>
