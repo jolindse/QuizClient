@@ -2,6 +2,12 @@ package gui;
 
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URL;
+
 import bean.Message;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -18,11 +24,28 @@ import logic.ClientController;
 
 public class ClientWindow {
 
-		private Render render;
+		
 		private final WebView outputView;
 		
 		public ClientWindow(Stage stage, ClientController controller){
-			render = new Render();
+		
+			/*
+			 * Have to load the html file with script and css into a string 
+			 * in order to feed it to the WebView engine.
+			 */
+			String content = " ";
+			// Load html as string for webview
+			try(BufferedReader reader = new BufferedReader(new FileReader(new File("resources/render.htm")))){
+				while(reader.ready()){
+					content += reader.readLine()+"\n";
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			
 			BorderPane rootPane = new BorderPane();
 			HBox topPanel = new HBox();
 			TextField nameField = new TextField();
@@ -35,15 +58,8 @@ public class ClientWindow {
 			topPanel.getChildren().addAll(nameField,btnConnect);
 			
 			outputView = new WebView();
-			
-			/*
-			 * Trying to implement auto scroll;
-			 */
-			
-			 
 			outputView.setFontSmoothingType(FontSmoothingType.GRAY);
-			outputView.getEngine().loadContent(render.getEmpty());
-			
+			outputView.getEngine().loadContent(content);		
 			
 			TextField input = new TextField();
 			input.setOnAction((e) ->{
@@ -71,11 +87,8 @@ public class ClientWindow {
 		
 		public void addOutput(Message currMessage){
 			System.out.println("VIEW; Recieved output: "+currMessage.getSendString()); // TEST
-			// RENDER INPUT
-			String htmlContent = render.getContent(currMessage);
-			// DO UPDATE IN FX THREAD
 			Platform.runLater(() ->{
-				outputView.getEngine().loadContent(htmlContent);
+				outputView.getEngine().executeScript("appendChat('"+currMessage.getCmd()+"','"+currMessage.getCmdData()+"','"+currMessage.getOptionalData()+"')");
 			});
 		}
 }

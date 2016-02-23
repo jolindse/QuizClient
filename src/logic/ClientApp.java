@@ -1,5 +1,7 @@
 package logic;
 
+import java.net.URL;
+
 import gui.ClientWindow;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -15,6 +17,7 @@ public class ClientApp extends Application {
 		ClientController controller = new ClientController();
 		ClientWindow view = new ClientWindow(primaryStage, controller);
 		controller.registerView(view);
+
 	}
 
 }

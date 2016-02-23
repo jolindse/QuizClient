@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<style type="text/css">
+p {
+	font-family: Verdana, Sans-serif;
+	margin: 0em;
+	font-size: 0.75em;
+}
+
+p.name {
+	color: rgb(0, 100, 100);
+	font-style: italic;
+}
+
+p.connect {
+	color: rgb(0, 0, 200);
+	font-style: italic;
+}
+
+p.disconnect {
+	color: rgb(100, 0, 0);
+	font-style: italic;
+}
+
+p.chat {
+	color: black;
+}
+
+p.error {
+	color: red;
+	font-style: italic;
+}
+
+p.default {
+	color: black;
+}
+
+#quest {
+	font-family: Georgia, Serif;
+	font-size: 1.2em;
+}
+
+#info {
+	font-family: Georgia, Serif;
+	font-size: 1.05em;
+}
+
+#question {
+	position: absolute;
+	background: white;
+	top: 0px;
+	left: 0px;
+	border: 1px;
+	padding: 10 px;
+	height: 120 px;
+	opacity: 0;
+	z-index: +1;
+}
+
+#information {
+	position: absolute;
+	background: rgb(50,50,50);
+	top: 120px;
+	left: 0 px;
+	border: 1px;
+	padding: 10px;
+	height: 80px;
+	opacity: 0;
+	z-index: +1;
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+
+</style>
+<title></title>
+</head>
+<body>
+	<script>
+		function appendChat(cmd, cmdData, optionalData) {
+			var pclass;
+			var outString;
+			switch (cmd) {
+			case "NAME":
+				pclass = 'name';
+				outString = optionalData + ' changed name to ' + cmdData;
+				break;
+			case "CONNECT":
+				pclass = 'connect';
+				outString = cmdData + ' connected to gameserver!';
+				break;
+			case "DISCONNECT":
+				pclass = 'disconnect';
+				outString = cmdData + ' disconnected from gameserver!';
+				break;
+			case "CHAT":
+				pclass = 'chat';
+				outString = cmdData + ' says: ' + optionalData;
+				break;
+			case "ERROR":
+				pclass = 'error';
+				outString = optionalData;
+				break;
+			case "INFORMATION":
+				pclass = 'default';
+				outString = optionalData;
+				break;
+			case "QUIZ":
+				// If quiz output - send to quizdisplay function.
+				displayQuiz(cmdData,optionalData);
+				break;
+			default:
+				pclass = 'default';
+				outString = cmdData + ' ' + optionalData;
+			}
+			// Creates new p element
+			var newMessage = document.createElement('p');
+			// Sets element class for css styling
+			newMessage.className = pclass;
+			// Create text node for element
+			var output = document.createTextNode(outString);
+			// Add text node to element
+			newMessage.appendChild(output);
+			// Get place to add new element
+			var position = document.getElementById('chat');
+			// Add new element
+			position.appendChild(newMessage);
+			// Make sure were scrolled to see latest added element
+			newMessage.scrollIntoView();
+		}
+		
+		function displayQuiz(cmdData, optionalData) {
+			
+			// Get references for element manipulation.
+			var questionP = document.getElementById("quest");
+			var infoP = document.getElementById("info");
+			
+			// Fields
+			var questionDiv = document.getElementById("question");
+			var informationDiv = document.getElementById("information");
+			
+			switch(cmdData){
+			case "START":
+				// Change question div opacity to 1
+				questionDiv.style.opacity = 1;
+				break;
+			case "QUESTION":
+				questionP.innerHTML = optionalData;
+				// Manipulate info div opacity to 0
+				informationDiv.style.opacity = 0;
+				break;
+			case "NOANSWER":
+				questionP.innerHTML = optionalData;
+				break;
+			case "ANSWER":
+				questionP.innerHTML = optionalData;
+				break;
+			case "INFO":
+				// info div opacity 1
+				informationDiv.style.opacity = 1;
+				infoP.innerHTML = optionalData;
+				break;
+			case "ENDED":
+				questionP.innerHTML = optionalData;
+				// info div opacity 0
+				informationDiv.style.opacity = 0;
+				break;
+			}
+		}
+	</script>
+	<div id="question"><p id="quest"></p></div>
+	<div id="information"><p id="info"></p></div>
+	<div id="chat"></div>
+</body>
+</html>
