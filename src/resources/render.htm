@@ -44,7 +44,9 @@ p.default {
 
 #info {
 	font-family: Verdana, Sans-serif;
+	font-style: italic;
 	font-size: 0.9em;
+	background: rgb(200,200,200);
 }
 
 #question {
@@ -143,12 +145,10 @@ p.default {
 			
 			switch(cmdData){
 			case "START":
-				// Change question div opacity to 1
 				questionDiv.style.opacity = 1;
 				break;
 			case "QUESTION":
 				questionP.innerHTML = optionalData;
-				// Manipulate info div opacity to 0
 				infoP.style.opacity = 0;
 				break;
 			case "NOANSWER":
@@ -158,14 +158,12 @@ p.default {
 				questionP.innerHTML = optionalData;
 				break;
 			case "INFO":
-				// info div opacity 1
 				infoP.innerHTML = optionalData;
 				infoP.style.opacity = 1;
 				break;
 			case "ENDED":
 				questionDiv.style.opacity = 0;
 				questionP.innerHTML = optionalData;
-				// info div opacity 0
 				infoP.style.opacity = 0;
 				break;
 			}
