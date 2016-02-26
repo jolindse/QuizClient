@@ -22,6 +22,7 @@ public class ServerConnection implements Runnable {
 	private ClientController controller;
 	private PrintWriter out;
 	private String name;
+	private boolean running;
 
 	/**
 	 * Connects to server with the adress and port. Establishes writer and
@@ -38,6 +39,7 @@ public class ServerConnection implements Runnable {
 		try {
 			server = new Socket(serverAdress, serverPort);
 			out = new PrintWriter(server.getOutputStream(), true);
+			running = true;
 		} catch (IOException e) {
 			// MAKE INFO MESSAGE AND DISPLAY
 			e.printStackTrace();
@@ -64,18 +66,34 @@ public class ServerConnection implements Runnable {
 	 */
 	@Override
 	public void run() {
+
 		controller.outputText("INFORMATION", "",
 				"Connected to :" + server.getInetAddress() + " on port: " + server.getPort());
 		controller.send("CONNECT", name, "");
 		Scanner sc;
 		try {
 			sc = new Scanner(server.getInputStream());
-			while (sc.hasNextLine()) {
+			while (sc.hasNextLine() && running) {
 				controller.outputText(sc.nextLine());
 			}
 		} catch (IOException e) {
 			// MAKE PROPER ERROR LINE
 			e.printStackTrace();
 		}
+
+	}
+	
+	public boolean disconnect(){
+		boolean result = false;
+		try {
+			controller.send("DISCONNECT", name, "");
+			server.close();
+			running = false;
+			result = true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
 	}
 }

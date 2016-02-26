@@ -1,5 +1,8 @@
 package logic;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import bean.Message;
 import gui.ClientWindow;
 import network.ServerConnection;
@@ -46,7 +49,33 @@ public class ClientController {
 	 */
 	public void outputText(String inLine) {
 		Message currMessage = new Message(inLine);
-		view.addOutput(currMessage);
+		if (currMessage.getCmd().equals("STATUS")) {
+			System.out.println("CONTROLLER; Status message recieved: "+currMessage.getSendString()); // TEST
+			updateStats(currMessage.getCmdData(),currMessage.getOptionalData());
+		} else {
+			view.addOutput(currMessage);
+		}
+	}
+
+	private void updateStats(String numEntries, String input) {
+		String splitChars = "$$";
+		List<String> statusList = new ArrayList<>();
+		int number = Integer.parseInt(numEntries);
+
+		String[] parseArray = input.split(splitChars,-1);
+
+		// TEST START
+		System.out.println("CONTROLLER; Length of parseArray: "+parseArray.length);
+		for (String currString: parseArray){
+			System.out.println(currString+"\n");
+		}
+		// TEST END
+		
+		for (int index = 0; index < number*2; index +=2){
+			statusList.add(parseArray[index] + " " + parseArray[index+1]+"p");
+		}
+
+		view.updateUserStats(statusList);
 	}
 
 	/**
@@ -93,12 +122,31 @@ public class ClientController {
 		}
 	}
 
+	/**
+	 * Alternate connection method that takes a supplied IP as argument for
+	 * connection
+	 * 
+	 * @param name
+	 * @param serverAdress
+	 */
 	public void connect(String name, String serverAdress) {
 		if (!serverConnected) {
 			this.serverAdress = serverAdress;
 			server = new ServerConnection(this, name, serverAdress, serverPort);
 			Thread serverConnection = new Thread(server);
 			serverConnection.start();
+		}
+	}
+
+	/**
+	 * Disconnects client from server.
+	 */
+	public void disconnect() {
+		if (server.disconnect()) {
+			serverConnected = false;
+			view.addOutput(new Message("INFORMATION", "", "Disconnected from gameserver!"));
+		} else {
+			view.addOutput(new Message("ERROR", "", "Trouble closing connection to server!"));
 		}
 	}
 

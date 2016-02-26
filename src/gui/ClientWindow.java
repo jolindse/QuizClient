@@ -1,12 +1,17 @@
 package gui;
 
 import java.net.URL;
+import java.util.List;
 
 import bean.Message;
 import javafx.application.Platform;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -31,7 +36,11 @@ import logic.ClientController;
  */
 public class ClientWindow {
 
+	private final String titleString = "QuizClient 0.7";
 	private Stage stage;
+	private ListView<String> users;
+	private List<String> usersConnected;
+	private ListProperty<String> userListProperty;
 	private final WebView outputView;
 
 	public ClientWindow(Stage stage, ClientController controller) {
@@ -59,13 +68,13 @@ public class ClientWindow {
 		ipField.setPromptText("Server ip-adress");
 
 		Button btnConnect = new Button("Connect to server");
+		Button btnDisconnect = new Button("Disconnect");
 
 		/*
 		 * Depending on what amount of info is submitted will connect to server
 		 * on submitted IP or default IP with given name.
 		 */
 		btnConnect.setOnAction((e) -> {
-			//
 			if (nameField.getText().length() > 0 && ipField.getText().length() > 0) {
 				controller.connect(nameField.getText(), ipField.getText());
 			} else if (nameField.getText().length() > 0) {
@@ -74,7 +83,21 @@ public class ClientWindow {
 				controller.outputInfoText("Name field can not be empty!");
 			}
 		});
-		topPanel.getChildren().addAll(nameField, ipField, btnConnect);
+
+		/*
+		 * Disconnects the client from server
+		 */
+		btnDisconnect.setOnAction((e) -> {
+			controller.disconnect();
+		});
+
+		topPanel.getChildren().addAll(nameField, ipField, btnConnect, btnDisconnect);
+
+		userListProperty = new SimpleListProperty<>();
+		users = new ListView<String>();
+		users.itemsProperty().bind(userListProperty);
+		users.setPrefWidth(120);
+		users.setVisible(false);
 
 		outputView = new WebView();
 		outputView.setFontSmoothingType(FontSmoothingType.GRAY);
@@ -94,6 +117,7 @@ public class ClientWindow {
 
 		rootPane.setTop(topPanel);
 		rootPane.setCenter(outputView);
+		rootPane.setRight(users);
 		rootPane.setBottom(input);
 
 		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -103,8 +127,8 @@ public class ClientWindow {
 			}
 		});
 
-		Scene scene = new Scene(rootPane, 600, 500);
-		stage.setTitle("QuizClient v0.7");
+		Scene scene = new Scene(rootPane, 690, 500);
+		stage.setTitle(titleString);
 		stage.setScene(scene);
 		stage.show();
 
@@ -119,6 +143,14 @@ public class ClientWindow {
 	 * @param currMessage
 	 */
 	public void addOutput(Message currMessage) {
+		if (currMessage.getCmd().equals("QUIZ")){
+			if (currMessage.getCmdData().equals("START")){
+				quizStarted();
+			}
+			if (currMessage.getCmdData().equals("ENDED")){
+				quizEnded();
+			}
+		}
 		Platform.runLater(() -> {
 			outputView.getEngine().executeScript("output('" + currMessage.getCmd() + "','" + currMessage.getCmdData()
 					+ "','" + currMessage.getOptionalData() + "')");
@@ -134,6 +166,46 @@ public class ClientWindow {
 	public void setConnected(String ip, String port) {
 		Platform.runLater(() -> {
 			stage.setTitle("Connected to " + ip + ":" + port);
+		});
+	}
+	
+	/**
+	 * Sets window title to default value when not connected.
+	 */
+	public void setDisconnected(){
+		Platform.runLater(() -> {
+			stage.setTitle(titleString);
+		});
+	}
+
+	/**
+	 * Feeds the status list to listview 
+	 * 
+	 * @param name
+	 */
+	public void updateUserStats(List<String> currStats) {
+		usersConnected = currStats;
+		Platform.runLater(() -> {
+			userListProperty.set(FXCollections.observableArrayList(usersConnected));
+		});
+
+	}
+	
+	/**
+	 *  Show status list when a game is running
+	 */
+	private void quizStarted(){
+		Platform.runLater(()->{
+			users.setVisible(true);
+		});
+	}
+	
+	/**
+	 * Hide status list when a game ends.
+	 */
+	private void quizEnded(){
+		Platform.runLater(()->{
+			users.setVisible(false);
 		});
 	}
 }
