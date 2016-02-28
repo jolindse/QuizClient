@@ -45,34 +45,33 @@ public class ClientController {
 	// METHODS TO MANIPULATE VIEW
 
 	/*
-	 * Outputs text to view but doesn't send it to server.
+	 * Outputs text to view but doesn't send it to server or starts the status
+	 * update for the status list in view.
 	 */
 	public void outputText(String inLine) {
 		Message currMessage = new Message(inLine);
 		if (currMessage.getCmd().equals("STATUS")) {
-			System.out.println("CONTROLLER; Status message recieved: "+currMessage.getSendString()); // TEST
-			updateStats(currMessage.getCmdData(),currMessage.getOptionalData());
+			updateStats(currMessage.getCmdData(), currMessage.getOptionalData());
 		} else {
 			view.addOutput(currMessage);
 		}
 	}
 
+	/**
+	 * Builds the list that populates the status list in view.
+	 * 
+	 * @param numEntries
+	 * @param input
+	 */
 	private void updateStats(String numEntries, String input) {
-		String splitChars = "$$";
+		String splitChars = ",%";
 		List<String> statusList = new ArrayList<>();
 		int number = Integer.parseInt(numEntries);
 
-		String[] parseArray = input.split(splitChars,-1);
+		String[] parseArray = input.split(splitChars, -1);
 
-		// TEST START
-		System.out.println("CONTROLLER; Length of parseArray: "+parseArray.length);
-		for (String currString: parseArray){
-			System.out.println(currString+"\n");
-		}
-		// TEST END
-		
-		for (int index = 0; index < number*2; index +=2){
-			statusList.add(parseArray[index] + " " + parseArray[index+1]+"p");
+		for (int index = 1; index < number * 2; index += 2) {
+			statusList.add(parseArray[index] + " " + parseArray[index + 1] + "p");
 		}
 
 		view.updateUserStats(statusList);
@@ -99,6 +98,10 @@ public class ClientController {
 		view.addOutput(currMessage);
 	}
 
+	public void connectionErrorDialog() {
+		view.displayAlert();
+	}
+
 	// METHODS TO HANDLE CONNECTION TO SERVER
 
 	/**
@@ -117,8 +120,10 @@ public class ClientController {
 	public void connect(String name) {
 		if (!serverConnected) {
 			server = new ServerConnection(this, name, serverAdress, serverPort);
-			Thread serverConnection = new Thread(server);
-			serverConnection.start();
+			if (server.getRunning()) {
+				Thread serverConnection = new Thread(server);
+				serverConnection.start();
+			}
 		}
 	}
 
@@ -133,8 +138,10 @@ public class ClientController {
 		if (!serverConnected) {
 			this.serverAdress = serverAdress;
 			server = new ServerConnection(this, name, serverAdress, serverPort);
-			Thread serverConnection = new Thread(server);
-			serverConnection.start();
+			if (server.getRunning()) {
+				Thread serverConnection = new Thread(server);
+				serverConnection.start();
+			}
 		}
 	}
 
@@ -142,11 +149,13 @@ public class ClientController {
 	 * Disconnects client from server.
 	 */
 	public void disconnect() {
-		if (server.disconnect()) {
-			serverConnected = false;
-			view.addOutput(new Message("INFORMATION", "", "Disconnected from gameserver!"));
-		} else {
-			view.addOutput(new Message("ERROR", "", "Trouble closing connection to server!"));
+		if (serverConnected) {
+			if (server.disconnect()) {
+				serverConnected = false;
+				view.addOutput(new Message("INFORMATION", "", "Disconnected from gameserver!"));
+			} else {
+				view.addOutput(new Message("ERROR", "", "Trouble closing connection to server!"));
+			}
 		}
 	}
 

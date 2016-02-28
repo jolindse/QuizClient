@@ -10,6 +10,8 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -152,11 +154,24 @@ public class ClientWindow {
 			}
 		}
 		Platform.runLater(() -> {
-			outputView.getEngine().executeScript("output('" + currMessage.getCmd() + "','" + currMessage.getCmdData()
-					+ "','" + currMessage.getOptionalData() + "')");
+			outputView.getEngine().executeScript("output('" + currMessage.getCmd() + "','" + currMessage.getCmdData() + "','" + currMessage.getOptionalData() + "')");
 		});
 	}
 
+	/**
+	 * Error dialog method called when theres an error connecting to server.
+	 */
+	public void displayAlert(){
+		Platform.runLater(() -> {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Connection error");
+			alert.setHeaderText("Unable to connect to gameserver");
+			alert.setContentText("The server was not found, Make sure server is running and that you have provided the proper IP.");
+			alert.showAndWait();
+		});
+	}
+	
+	
 	/**
 	 * Sets window title when connected to server. Called from controller.
 	 * 

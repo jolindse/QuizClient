@@ -25,7 +25,7 @@ public class ServerConnection implements Runnable {
 	private boolean running;
 
 	/**
-	 * Connects to server with the adress and port. Establishes writer and
+	 * Connects to server with the address and port. Establishes writer and
 	 * socket for I/O operations.
 	 * 
 	 * @param controller
@@ -40,15 +40,10 @@ public class ServerConnection implements Runnable {
 			server = new Socket(serverAdress, serverPort);
 			out = new PrintWriter(server.getOutputStream(), true);
 			running = true;
+			controller.setServerConnected();
 		} catch (IOException e) {
-			// MAKE INFO MESSAGE AND DISPLAY
-			e.printStackTrace();
+			controller.connectionErrorDialog();
 		}
-		controller.setServerConnected();
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	/**
@@ -66,24 +61,28 @@ public class ServerConnection implements Runnable {
 	 */
 	@Override
 	public void run() {
-
-		controller.outputText("INFORMATION", "",
-				"Connected to :" + server.getInetAddress() + " on port: " + server.getPort());
-		controller.send("CONNECT", name, "");
-		Scanner sc;
-		try {
-			sc = new Scanner(server.getInputStream());
-			while (sc.hasNextLine() && running) {
-				controller.outputText(sc.nextLine());
+		if (server != null) {
+			controller.outputText("INFORMATION", "",
+					"Connected to :" + server.getInetAddress() + " on port: " + server.getPort());
+			controller.send("CONNECT", name, "");
+			Scanner sc;
+			try {
+				sc = new Scanner(server.getInputStream());
+				while (sc.hasNextLine() && running) {
+					controller.outputText(sc.nextLine());
+				}
+			} catch (IOException e) {
+				// MAKE PROPER ERROR LINE
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			// MAKE PROPER ERROR LINE
-			e.printStackTrace();
 		}
-
 	}
-	
-	public boolean disconnect(){
+
+	/**
+	 * Disconnect method
+	 * @return
+	 */
+	public boolean disconnect() {
 		boolean result = false;
 		try {
 			controller.send("DISCONNECT", name, "");
@@ -96,4 +95,17 @@ public class ServerConnection implements Runnable {
 		}
 		return result;
 	}
+	
+
+	// Getters
+	
+	public boolean getRunning(){
+		return running;
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	
 }
