@@ -98,8 +98,14 @@ public class ClientController {
 		view.addOutput(currMessage);
 	}
 
-	public void connectionErrorDialog() {
-		view.displayAlert();
+	/**
+	 * Displays an error dialog in view using information provided in strings.
+	 * @param errorClass
+	 * @param errorHeader
+	 * @param errorText
+	 */
+	public void errorDialog(String errorClass, String errorHeader, String errorText) {
+		view.displayAlert(errorClass,errorHeader,errorText);
 	}
 
 	// METHODS TO HANDLE CONNECTION TO SERVER

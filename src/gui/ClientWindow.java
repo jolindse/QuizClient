@@ -38,7 +38,7 @@ import logic.ClientController;
  */
 public class ClientWindow {
 
-	private final String titleString = "QuizClient 0.7";
+	private final String VERSION_NR = "0.7";
 	private Stage stage;
 	private ListView<String> users;
 	private List<String> usersConnected;
@@ -130,7 +130,7 @@ public class ClientWindow {
 		});
 
 		Scene scene = new Scene(rootPane, 690, 500);
-		stage.setTitle(titleString);
+		stage.setTitle("QuizClient "+VERSION_NR);
 		stage.setScene(scene);
 		stage.show();
 
@@ -159,14 +159,16 @@ public class ClientWindow {
 	}
 
 	/**
-	 * Error dialog method called when theres an error connecting to server.
+	 * Error dialog method called from controller.
 	 */
-	public void displayAlert(){
+	public void displayAlert(String errorClass, String errorHeader, String errorText){
 		Platform.runLater(() -> {
 			Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Connection error");
-			alert.setHeaderText("Unable to connect to gameserver");
-			alert.setContentText("The server was not found, Make sure server is running and that you have provided the proper IP.");
+			
+			alert.setTitle(errorClass);
+			alert.setHeaderText(errorHeader);
+			alert.setContentText(errorText);
+			
 			alert.showAndWait();
 		});
 	}
@@ -189,7 +191,7 @@ public class ClientWindow {
 	 */
 	public void setDisconnected(){
 		Platform.runLater(() -> {
-			stage.setTitle(titleString);
+			stage.setTitle("QuizClient "+VERSION_NR);
 		});
 	}
 

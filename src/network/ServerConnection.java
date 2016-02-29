@@ -42,7 +42,7 @@ public class ServerConnection implements Runnable {
 			running = true;
 			controller.setServerConnected();
 		} catch (IOException e) {
-			controller.connectionErrorDialog();
+			controller.errorDialog("Connection error","Unable to connect to gameserver","The server was not found, Make sure server is running and that you have provided the proper IP.");
 		}
 	}
 
@@ -72,8 +72,7 @@ public class ServerConnection implements Runnable {
 					controller.outputText(sc.nextLine());
 				}
 			} catch (IOException e) {
-				// MAKE PROPER ERROR LINE
-				e.printStackTrace();
+				controller.errorDialog("Communication error", "Problem with connection to gameserver", "There was a problem with the network connection to gameserver. Please restart application.");
 			}
 		}
 	}
@@ -90,8 +89,7 @@ public class ServerConnection implements Runnable {
 			running = false;
 			result = true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			controller.errorDialog("Connection error", "Unable to disconnect from gameserver", "Please wait a moment and try again.");
 		}
 		return result;
 	}
